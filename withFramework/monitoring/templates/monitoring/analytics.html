@@ -1,0 +1,25 @@
+{% extends 'monitoring/index.html' %}
+
+{% block content %}
+<div>
+    <h1>Analytics</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Timestamp</th>
+                <th>Detections</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detection in detections %}
+            <tr>
+                <td>{{ detection.id }}</td>
+                <td>{{ detection.timestamp }}</td>
+                <td>{{ detection.detections }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

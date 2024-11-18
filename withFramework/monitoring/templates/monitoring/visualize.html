@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    .upload-btn-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .btn {
+        border: 2px solid #007bff;
+        color: white;
+        background-color: #007bff;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .upload-btn-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+    }
+
+    .image-container {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+    .image-container img {
+        max-width: 45%;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+    }
+</style>
+{% extends 'monitoring/index.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Visualize</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="upload-btn-wrapper">
+                <button class="btn"><i class="fas fa-upload"></i> Upload Image</button>
+                <input type="file" name="image" id="image">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </form>
+    {% if uploaded_file_url %}
+    <div class="image-container">
+        <div>
+            <h2>Uploaded Image</h2>
+            <img src="{{ uploaded_file_url }}" class="img-fluid">
+        </div>
+        <div>
+            <h2>Annotated Image</h2>
+            <img src="{{ annotated_image_url }}" class="img-fluid">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
