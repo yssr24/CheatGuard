@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Live Detection</h1>
+        <button id="open-camera" class="btn btn-primary"><i class="fas fa-video"></i> Add Camera</button>
+    </div>
+    <div id="camera-container" class="camera-grid"></div>
+    <button id="action-button" class="btn btn-success mt-3" style="display: none;">Action Button</button>
+</div>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Upload Image</h1>
+        <button id="open-upload-modal" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Image</button>
+    </div>
+    <div id="image-result" class="image-upload-grid"></div>
+</div>
+
+<!-- Modal -->
+<div id="uploadModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="image" id="image-input" class="form-control">
+                    <button type="submit" class="btn btn-primary mt-3">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cameraModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Camera</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select id="camera-select" class="form-control"></select>
+            </div>
+            <div class="modal-footer">
+                <button id="add-camera" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    let cameraCount = 0;
+    const maxCameras = 3;
+    const modal = $('#cameraModal');
+    const btn = $('#open-camera');
+    const select = $('#camera-select');
+    const actionButton = $('#action-button');
+    const cameraContainer = $('#camera-container');
+
+    btn.click(function() {
+        navigator.mediaDevices.enumerateDevices().then(devices => {
+            select.empty();
+            devices.forEach(device => {
+                if (device.kind === 'videoinput') {
+                    const option = $('<option></option>').val(device.deviceId).text(device.label || `Camera ${select.children().length + 1}`);
+                    select.append(option);
+                }
+            });
+            modal.modal('show');
+        });
+    });
+    $('#open-upload-modal').click(function() {
+        $('#uploadModal').modal('show');
+    });
+
+    $('#upload-form').submit(function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        $.ajax({
+            url: '{% url "upload_image" folder.id %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#uploadModal').modal('hide');
+                const img = $('<img class="img-fluid border rounded"></img>').attr('src', response.image_url);
+                $('#image-result').html(img);
+                $('#image-result').append('<p>Detected Cheating: ' + response.cheating + '</p>');
+                $('#image-result').append('<p>Detected Non-Cheating: ' + response.non_cheating + '</p>');
+                $('#image-result').append('<p>Detected Phone: ' + response.phone + '</p>');
+                $('#image-result').append('<p>Detected Cheating-Paper: ' + response.cheating_paper + '</p>');
+            },
+            error: function(response) {
+                alert('Error uploading image');
+            }
+        });
+    });
+
+    $('#add-camera').click(function() {
+        if (cameraCount < maxCameras) {
+            const deviceId = select.val();
+            const cameraDiv = $('<div class="camera-slot"></div>');
+            const img = $('<img class="img-fluid border rounded"></img>').attr('src', `/video_feed/${deviceId}`).attr('alt', 'Camera feed');
+            cameraDiv.append(img);
+            cameraContainer.append(cameraDiv);
+            cameraCount++;
+            modal.modal('hide');
+            if (cameraCount > 0) {
+                actionButton.show();
+            }
+            updateCameraGrid();
+        } else {
+            alert('Maximum number of cameras reached');
+        }
+    });
+
+    function updateCameraGrid() {
+        if (cameraCount === 1) {
+            cameraContainer.css('grid-template-columns', '1fr');
+            cameraContainer.css('grid-template-rows', '1fr');
+        } else if (cameraCount === 2) {
+            cameraContainer.css('grid-template-columns', '1fr 1fr');
+            cameraContainer.css('grid-template-rows', '1fr');
+        } else if (cameraCount === 3) {
+            cameraContainer.css('grid-template-columns', '1fr 1fr');
+            cameraContainer.css('grid-template-rows', '1fr 1fr');
+            cameraContainer.children().eq(2).css('grid-column', 'span 2');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

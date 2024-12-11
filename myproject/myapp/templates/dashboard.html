@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<h1>Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images/F1_Curve.png' %}" class="card-img-top" alt="F1-Confidence">
+            <div class="card-body">
+                <p class="card-text">F1-Confidence</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images/P_curve.png' %}" class="card-img-top" alt="P curve">
+            <div class="card-body">
+                <p class="card-text">P curve</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images/PR_curve.png' %}" class="card-img-top" alt="PR curve">
+            <div class="card-body">
+                <p class="card-text">PR curve</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images/R_curve.png' %}" class="card-img-top" alt="R curve">
+            <div class="card-body">
+                <p class="card-text">R curve</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card card-large">
+            <img src="{% static 'images/Confusion_Matrix.png' %}" class="card-img-top" alt="Confusion Matrix">
+            <div class="card-body">
+                <p class="card-text">Confusion Matrix</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-large">
+            <img src="{% static 'images/Confusion_Matrix_Normalized.png' %}" class="card-img-top" alt="Confusion Matrix Normalized">
+            <div class="card-body">
+                <p class="card-text">Confusion Matrix Normalized</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-large">
+            <div class="card-body">
+                <p class="card-text">Precision</p>
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">60%</div>
+                </div>
+                <p class="card-text">Recall</p>
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" style="width: 39%;" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100">39%</div>
+                </div>
+                <p class="card-text">mAP</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 36%;" aria-valuenow="36" aria-valuemin="0" aria-valuemax="100">36%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mt-5">Session Folders</h2>
+<div class="session-folders">
+    {% if session_folders %}
+        {% for folder in session_folders %}
+            <div class="folder">
+                <a href="#" class="folder-link" data-folder-id="{{ folder.id }}">
+                    <i class="fas fa-folder"></i> {{ folder.name }}
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No session folders available.</p>
+    {% endif %}
+</div>
+
+<!-- Modal for displaying images -->
+<div class="modal fade" id="folderImagesModal" tabindex="-1" role="dialog" aria-labelledby="folderImagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="folderImagesModalLabel">Images</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="folder-images-container">
+                    <!-- Images will be loaded here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.folder-link').click(function(e) {
+            e.preventDefault();
+            const folderId = $(this).data('folder-id');
+            $.ajax({
+                url: '{% url "folder_images" 0 %}'.replace('0', folderId),
+                method: 'GET',
+                success: function(data) {
+                    $('#folder-images-container').html('');
+                    data.images.forEach(function(image) {
+                        const imgElement = `<div class="col-md-4"><div class="card"><img src="${image.url}" class="card-img-top" alt="Image"></div></div>`;
+                        $('#folder-images-container').append(imgElement);
+                    });
+                    $('#folderImagesModal').modal('show');
+                },
+                error: function() {
+                    alert('Failed to load images.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

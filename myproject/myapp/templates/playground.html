@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Playground</h1>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSessionModal">
+    Create Session Folder
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createSessionModal" tabindex="-1" role="dialog" aria-labelledby="createSessionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createSessionModalLabel">Create Session Folder</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="session-folders">
+    {% if session_folders %}
+        {% for folder in session_folders %}
+            <div class="folder">
+                <a href="{% url 'folder_detail' folder.id %}">
+                    <i class="fas fa-folder"></i> {{ folder.name }}
+                </a>
+                <form method="post" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No session folders available.</p>
+    {% endif %}
+</div>
+{% endblock %}

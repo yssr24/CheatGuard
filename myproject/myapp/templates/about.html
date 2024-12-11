@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<h1>About</h1>
+<h3>Developers</h3>
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images\462570704_1133684914837498_8534767734717252744_n.jpg' %}" class="card-img-top" alt="Abela Leah">
+            <div class="card-body">
+                <p class="card-text">Abela Leah</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images\462578925_1676289476250968_1473499667142011372_n.jpg' %}" class="card-img-top" alt="Festin Jeremey">
+            <div class="card-body">
+                <p class="card-text">Festin Jeremey</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images\462647603_899496028956355_570183223111689570_n.jpg' %}" class="card-img-top" alt="Pacia Rio Renz">
+            <div class="card-body">
+                <p class="card-text">Pacia Rio Renz</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <img src="{% static 'images\383866332_839224867648961_1836841064244498765_n (1).jpg' %}" class="card-img-top" alt="Pandapatan Yasser">
+            <div class="card-body">
+                <p class="card-text">Pandapatan Yasser</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>About the System</h3>
+<p>CheatGuard uses Ultralytics YOLOv8 to detect real-time cheating during actual exams. It can also upload images and show results using the model.</p>
+
+{% endblock %}
